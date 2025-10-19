@@ -2,45 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserList.css';
 
-// Mock data for demo (Xóa phần này khi dùng API thật)
-const MOCK_USERS = [
-  {
-    id: 1,
-    name: 'Nguyễn Huy Điền',
-    email: 'nguyenhuydien@example.com',
-    phone: '0376611234',
-    address: 'Cần Thơ, Việt Nam'
-  },
-  {
-    id: 2,
-    name: 'Dương Hoàng Duy',
-    email: 'duonghoangduy@example.com',
-    phone: '0912345678',
-    address: 'Cần Thơ, Việt Nam'
-  },
-  {
-    id: 3,
-    name: 'Võ Trần Hoàng Bảo Khang',
-    email: 'votranhoangbaokhang@example.com',
-    phone: '0923456789',
-    address: 'Cần Thơ, Việt Nam'
-  }
-];
-
 function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // MOCK: Dùng data giả để demo
-    setTimeout(() => {
-      setUsers(MOCK_USERS);
-      setLoading(false);
-    }, 500);
-
-    // THẬT: Uncomment phần dưới khi backend đã chạy
-    // fetchUsers();
+    fetchUsers();
   }, []);
 
   const fetchUsers = async () => {

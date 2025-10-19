@@ -1,5 +1,13 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
+
+// Kết nối MongoDB
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/userdb";
+
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log("✅ Kết nối MongoDB thành công"))
+  .catch((err) => console.error("❌ Lỗi kết nối MongoDB:", err));
 
 // Middleware
 app.use(express.json());

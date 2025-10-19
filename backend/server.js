@@ -1,12 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
+require("dotenv").config();
+
 const app = express();
 
-// Kết nối MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/userdb";
+// Kết nối MongoDB Atlas
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://users:<db_password>@groupdb.pe08z8z.mongodb.net/?retryWrites=true&w=majority&appName=groupDB";
 
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log("✅ Kết nối MongoDB thành công"))
+  .then(() => console.log("✅ Kết nối MongoDB Atlas thành công"))
   .catch((err) => console.error("❌ Lỗi kết nối MongoDB:", err));
 
 // Middleware

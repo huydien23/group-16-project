@@ -15,7 +15,8 @@ function UserList() {
     try {
       setLoading(true);
       const response = await axios.get('http://localhost:3000/users');
-      setUsers(response.data);
+      // Backend trả về { success: true, data: [...] }
+      setUsers(response.data.data || response.data);
       setError(null);
     } catch (err) {
       setError('Không thể tải danh sách người dùng. Vui lòng kiểm tra kết nối API.');

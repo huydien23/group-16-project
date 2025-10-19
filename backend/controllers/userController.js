@@ -21,7 +21,7 @@ const getAllUsers = async (req, res) => {
 // POST /users - Tạo user mới trong MongoDB
 const createUser = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, phone, address } = req.body;
 
     // Kiểm tra dữ liệu đầu vào
     if (!name || !email) {
@@ -43,7 +43,9 @@ const createUser = async (req, res) => {
     // Tạo user mới trong database
     const newUser = await User.create({
       name,
-      email
+      email,
+      phone: phone || '',
+      address: address || ''
     });
 
     res.status(201).json({

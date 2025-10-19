@@ -1,34 +1,36 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import UserList from './components/UserList'
+import AddUser from './components/AddUser'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const handleUserAdded = () => {
+    // Force refresh UserList by changing key
+    setRefreshKey(prev => prev + 1)
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app-container">
+      <header className="app-header">
+        <h1>Quản Lý Người Dùng</h1>
+        <p>Hệ thống quản lý danh sách người dùng</p>
+      </header>
+
+      <main className="app-main">
+        <div className="main-left">
+          <AddUser onUserAdded={handleUserAdded} />
+        </div>
+        <div className="main-right">
+          <UserList key={refreshKey} />
+        </div>
+      </main>
+
+      <footer className="app-footer">
+        <p>© 2025 Group 16 Project - User Management System</p>
+      </footer>
+    </div>
   )
 }
 

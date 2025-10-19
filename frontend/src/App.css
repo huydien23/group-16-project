@@ -1,42 +1,101 @@
 #root {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
+  width: 100%;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+}
+
+.app-header {
+  background: #ffffff;
+  padding: clamp(1rem, 2vw, 1.5rem);
   text-align: center;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  color: #1d4ed8;
+  font-weight: 700;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.app-header p {
+  margin: 0.5rem 0 0 0;
+  color: #6b7280;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+}
+
+.app-main {
+  flex: 1;
+  padding: clamp(1rem, 2vw, 2rem);
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.main-left {
+  flex: 0 0 420px;
+  position: sticky;
+  top: 1rem;
+  padding-right: 50px; 
+}
+
+.main-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-footer {
+  background: #ffffff;
+  color: #6b7280;
+  text-align: center;
+  padding: 1.2rem;
+  margin-top: auto;
+  border-top: 1px solid #e5e7eb;
+}
+
+.app-footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+  .app-main {
+    flex-direction: column;
+    gap: 1.5rem;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .main-left {
+    flex: 1;
+    width: 100%;
+    position: static;
+  }
+  
+  .main-right {
+    width: 100%;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 1.5rem;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  
+  .app-header p {
+    font-size: 0.9rem;
+  }
+  
+  .app-main {
+    padding: 1rem;
+  }
 }

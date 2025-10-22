@@ -6,7 +6,8 @@ const app = express();
 
 // Kết nối MongoDB Atlas
 const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb+srv://huydien123:huydien123@groupdb.pe08z8z.mongodb.net/?retryWrites=true&w=majority&appName=groupDB";
+  process.env.MONGODB_URI ||
+  "mongodb+srv://huydien123:huydien123@groupdb.pe08z8z.mongodb.net/?retryWrites=true&w=majority&appName=groupDB";
 
 mongoose
   .connect(MONGODB_URI)
@@ -44,6 +45,8 @@ app.get("/", (req, res) => {
       users: {
         getAll: "GET /users",
         create: "POST /users",
+        update: "PUT /users/:id",
+        delete: "DELETE /users/:id",
       },
     },
   });

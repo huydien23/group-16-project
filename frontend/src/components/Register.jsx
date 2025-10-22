@@ -118,18 +118,24 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('http://localhost:3000/auth/register', {
+      const response = await axios.post('http://localhost:3000/api/auth/signup', {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password
       });
 
-      // Lưu token vào localStorage
-      const { token, user } = response.data.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      // Không lưu token vào localStorage (chỉ thông báo thành công)
+      let userData, tokenData;
+      if (response.data.success && response.data.data) {
+        const { token, user } = response.data.data;
+        userData = user;
+        tokenData = token;
+      } else {
+        throw new Error(response.data.message || 'Đăng ký thất bại');
+      }
       
-      setSuccess(true);
+      // Không hiển thị success message ở đây nữa (dùng toast notification)
+      // setSuccess(true);
       
       // Reset form
       setFormData({
@@ -139,23 +145,22 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
         confirmPassword: ''
       });
       
-      // Call callback to notify parent component
+      // Call callback to notify parent component (không login ngay)
       if (onRegisterSuccess) {
-        onRegisterSuccess(user, token);
+        onRegisterSuccess(userData, tokenData);
       }
       
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(false), 3000);
-      
     } catch (err) {
+      console.error('Register error:', err);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.data?.errors) {
         setError(err.response.data.errors.join(', '));
+      } else if (err.message) {
+        setError(err.message);
       } else {
         setError('Đăng ký thất bại. Vui lòng thử lại.');
       }
-      console.error('Register error:', err);
     } finally {
       setLoading(false);
     }

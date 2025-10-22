@@ -109,7 +109,7 @@ function AddUser({ onUserAdded }) {
         address: formData.address.trim()
       };
 
-      await axios.post('http://localhost:3000/users', newUser);
+      await axios.post('http://localhost:3000/api/users', newUser);
       
       // Reset form
       setFormData({

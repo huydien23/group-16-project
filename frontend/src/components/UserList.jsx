@@ -22,7 +22,7 @@ function UserList({ onUserUpdated }) {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/users');
+      const response = await axios.get('http://localhost:3000/api/users');
       // Backend trả về { success: true, data: [...] }
       setUsers(response.data.data || response.data);
       setError(null);
@@ -40,7 +40,7 @@ function UserList({ onUserUpdated }) {
     }
 
     try {
-      await axios.delete(`http://localhost:3000/users/${id}`);
+      await axios.delete(`http://localhost:3000/api/users/${id}`);
       setUsers(users.filter(user => user._id !== id));
       if (onUserUpdated) {
         onUserUpdated();
@@ -98,7 +98,7 @@ function UserList({ onUserUpdated }) {
     setEditValidationErrors({});
     
     try {
-      const response = await axios.put(`http://localhost:3000/users/${editingUser._id}`, editForm);
+      const response = await axios.put(`http://localhost:3000/api/users/${editingUser._id}`, editForm);
       
       // Cập nhật user trong danh sách
       setUsers(users.map(user => 

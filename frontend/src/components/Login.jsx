@@ -82,15 +82,22 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('http://localhost:3000/auth/login', {
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
         email: formData.email.trim(),
         password: formData.password
       });
 
       // Lưu token vào localStorage
-      const { token, user } = response.data.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      let userData, tokenData;
+      if (response.data.success && response.data.data) {
+        const { token, user } = response.data.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        userData = user;
+        tokenData = token;
+      } else {
+        throw new Error(response.data.message || 'Đăng nhập thất bại');
+      }
       
       // Reset form
       setFormData({
@@ -100,7 +107,7 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
       
       // Call callback to notify parent component
       if (onLoginSuccess) {
-        onLoginSuccess(user, token);
+        onLoginSuccess(userData, tokenData);
       }
       
     } catch (err) {

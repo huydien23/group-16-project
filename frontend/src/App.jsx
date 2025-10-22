@@ -5,12 +5,14 @@ import UserList from './components/UserList'
 import AddUser from './components/AddUser'
 import Login from './components/Login'
 import Register from './components/Register'
+import Profile from './components/Profile'
 import { useToast } from './components/Toast'
 
 function AppContent() {
   const { user, isAuthenticated, loading, login, register, logout } = useAuth()
   const [refreshKey, setRefreshKey] = useState(0)
   const [authMode, setAuthMode] = useState('login') // 'login' or 'register'
+  const [currentView, setCurrentView] = useState('users') // 'users' or 'profile'
   const toast = useToast()
 
   const handleUserAdded = () => {
@@ -97,7 +99,13 @@ function AppContent() {
               <p>Hệ thống quản lý danh sách người dùng</p>
             </div>
             <div className="user-info">
-              <span className="welcome-text">Xin chào, {user?.name}!</span>
+              <button 
+                onClick={() => setCurrentView('profile')} 
+                className="profile-btn"
+                title="Xem Profile"
+              >
+                👤 {user?.name}
+              </button>
               <button onClick={handleLogout} className="logout-btn">
                 Đăng xuất
               </button>
@@ -105,13 +113,35 @@ function AppContent() {
           </div>
         </header>
 
+        {/* Navigation Tabs */}
+        <nav className="app-nav">
+          <button 
+            className={`nav-tab ${currentView === 'users' ? 'active' : ''}`}
+            onClick={() => setCurrentView('users')}
+          >
+            📋 Quản Lý Users
+          </button>
+          <button 
+            className={`nav-tab ${currentView === 'profile' ? 'active' : ''}`}
+            onClick={() => setCurrentView('profile')}
+          >
+            👤 Thông Tin Cá Nhân
+          </button>
+        </nav>
+
         <main className="app-main">
-          <div className="main-left">
-            <AddUser onUserAdded={handleUserAdded} />
-          </div>
-          <div className="main-right">
-            <UserList key={refreshKey} onUserUpdated={handleUserAdded} />
-          </div>
+          {currentView === 'users' ? (
+            <>
+              <div className="main-left">
+                <AddUser onUserAdded={handleUserAdded} />
+              </div>
+              <div className="main-right">
+                <UserList key={refreshKey} onUserUpdated={handleUserAdded} />
+              </div>
+            </>
+          ) : (
+            <Profile />
+          )}
         </main>
 
         <footer className="app-footer">

@@ -164,20 +164,11 @@ const logout = async (req, res) => {
   }
 };
 
-// Get current user
+// Get current user (được gọi sau protect middleware)
 const getMe = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Không có token'
-      });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    const user = await User.findById(decoded.id).select('-password');
+    // User đã được verify và set bởi protect middleware
+    const user = req.user;
 
     if (!user) {
       return res.status(404).json({
@@ -189,11 +180,12 @@ const getMe = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        }
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        address: user.address || '',
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -208,20 +200,12 @@ const getMe = async (req, res) => {
 // Update profile
 const updateProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
-    const token = req.headers.authorization?.split(' ')[1];
+    const { name, email, phone, address } = req.body;
     
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Không có token'
-      });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    // User đã được verify và set bởi protect middleware
     const user = await User.findByIdAndUpdate(
-      decoded.id,
-      { name, email },
+      req.user._id,
+      { name, email, phone, address },
       { new: true, runValidators: true }
     ).select('-password');
 
@@ -236,11 +220,12 @@ const updateProfile = async (req, res) => {
       success: true,
       message: 'Cập nhật thông tin thành công',
       data: {
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        }
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        address: user.address || '',
+        role: user.role || 'user'
       }
     });
   } catch (error) {

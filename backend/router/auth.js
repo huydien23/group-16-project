@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { signup, login, logout, getMe, updateProfile, updatePassword } = require('../controllers/authController');
+const { protect } = require('../middleware/auth');
 
-// Auth routes
+// Public routes (không cần authentication)
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/logout', logout);
-router.get('/me', getMe);
-router.put('/updateprofile', updateProfile);
-router.put('/updatepassword', updatePassword);
+
+// Protected routes (cần authentication)
+router.post('/logout', protect, logout);
+router.get('/me', protect, getMe);
+router.put('/updateprofile', protect, updateProfile);
+router.put('/updatepassword', protect, updatePassword);
 
 module.exports = router;

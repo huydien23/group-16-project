@@ -229,6 +229,20 @@
   background: #4b5563;
 }
 
+/* Validation Styles */
+.error-input {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
+}
+
 @media (max-width: 768px) {
   .user-grid {
     grid-template-columns: 1fr;

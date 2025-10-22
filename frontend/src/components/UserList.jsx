@@ -42,7 +42,7 @@ function UserList() {
       ) : (
         <div className="user-grid">
           {users.map((user) => (
-            <div key={user.id} className="user-card">
+            <div key={user._id || user.id} className="user-card">
               <div className="user-avatar">
                 {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>

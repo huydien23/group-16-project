@@ -99,6 +99,24 @@
   background: #1d4ed8;
 }
 
+/* Validation Styles */
+.error-input {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
+}
+
+.form-group {
+  position: relative;
+}
+
 .submit-btn:active:not(:disabled) {
   background: #1e40af;
 }

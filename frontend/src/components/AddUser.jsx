@@ -12,6 +12,57 @@ function AddUser({ onUserAdded }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name.trim()) {
+      return "Tên không được để trống";
+    }
+    if (name.trim().length < 2) {
+      return "Tên phải có ít nhất 2 ký tự";
+    }
+    if (name.trim().length > 50) {
+      return "Tên không được quá 50 ký tự";
+    }
+    return null;
+  };
+
+  const validateEmail = (email) => {
+    if (!email.trim()) {
+      return "Email không được để trống";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return "Email không hợp lệ";
+    }
+    return null;
+  };
+
+  const validatePhone = (phone) => {
+    if (phone.trim() && !/^[0-9+\-\s()]+$/.test(phone.trim())) {
+      return "Số điện thoại chỉ được chứa số và ký tự +, -, (, ), khoảng trắng";
+    }
+    if (phone.trim() && phone.trim().length < 10) {
+      return "Số điện thoại phải có ít nhất 10 số";
+    }
+    return null;
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    const nameError = validateName(formData.name);
+    if (nameError) errors.name = nameError;
+    
+    const emailError = validateEmail(formData.email);
+    if (emailError) errors.email = emailError;
+    
+    const phoneError = validatePhone(formData.phone);
+    if (phoneError) errors.phone = phoneError;
+    
+    return errors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,19 +70,33 @@ function AddUser({ onUserAdded }) {
       ...prev,
       [name]: value
     }));
+    
     // Clear messages when user starts typing
     setError(null);
     setSuccess(false);
+    
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.name.trim() || !formData.email.trim()) {
-      setError('Vui lòng nhập tên và email');
+    // Advanced validation
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setError('Vui lòng sửa các lỗi bên dưới');
       return;
     }
+    
+    // Clear validation errors
+    setValidationErrors({});
 
     try {
       setLoading(true);
@@ -100,8 +165,12 @@ function AddUser({ onUserAdded }) {
             value={formData.name}
             onChange={handleChange}
             placeholder="Nhập tên người dùng"
+            className={validationErrors.name ? 'error-input' : ''}
             required
           />
+          {validationErrors.name && (
+            <span className="field-error">{validationErrors.name}</span>
+          )}
         </div>
 
         <div className="form-group">
@@ -115,8 +184,12 @@ function AddUser({ onUserAdded }) {
             value={formData.email}
             onChange={handleChange}
             placeholder="Nhập email"
+            className={validationErrors.email ? 'error-input' : ''}
             required
           />
+          {validationErrors.email && (
+            <span className="field-error">{validationErrors.email}</span>
+          )}
         </div>
 
         <div className="form-group">
@@ -128,7 +201,11 @@ function AddUser({ onUserAdded }) {
             value={formData.phone}
             onChange={handleChange}
             placeholder="Nhập số điện thoại"
+            className={validationErrors.phone ? 'error-input' : ''}
           />
+          {validationErrors.phone && (
+            <span className="field-error">{validationErrors.phone}</span>
+          )}
         </div>
 
         <div className="form-group">

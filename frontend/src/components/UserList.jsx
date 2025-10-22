@@ -13,6 +13,7 @@ function UserList({ onUserUpdated }) {
     phone: '',
     address: ''
   });
+  const [editValidationErrors, setEditValidationErrors] = useState({});
 
   useEffect(() => {
     fetchUsers();
@@ -60,8 +61,41 @@ function UserList({ onUserUpdated }) {
     });
   };
 
+  // Validation for edit form
+  const validateEditForm = () => {
+    const errors = {};
+    
+    if (!editForm.name.trim()) {
+      errors.name = "Tên không được để trống";
+    } else if (editForm.name.trim().length < 2) {
+      errors.name = "Tên phải có ít nhất 2 ký tự";
+    }
+    
+    if (!editForm.email.trim()) {
+      errors.email = "Email không được để trống";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim())) {
+      errors.email = "Email không hợp lệ";
+    }
+    
+    if (editForm.phone.trim() && !/^[0-9+\-\s()]+$/.test(editForm.phone.trim())) {
+      errors.phone = "Số điện thoại chỉ được chứa số và ký tự +, -, (, ), khoảng trắng";
+    }
+    
+    return errors;
+  };
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form
+    const errors = validateEditForm();
+    if (Object.keys(errors).length > 0) {
+      setEditValidationErrors(errors);
+      return;
+    }
+    
+    // Clear validation errors
+    setEditValidationErrors({});
     
     try {
       const response = await axios.put(`http://localhost:3000/users/${editingUser._id}`, editForm);
@@ -111,8 +145,12 @@ function UserList({ onUserUpdated }) {
                 type="text"
                 value={editForm.name}
                 onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                className={editValidationErrors.name ? 'error-input' : ''}
                 required
               />
+              {editValidationErrors.name && (
+                <span className="field-error">{editValidationErrors.name}</span>
+              )}
             </div>
             <div className="form-group">
               <label>Email *</label>
@@ -120,8 +158,12 @@ function UserList({ onUserUpdated }) {
                 type="email"
                 value={editForm.email}
                 onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                className={editValidationErrors.email ? 'error-input' : ''}
                 required
               />
+              {editValidationErrors.email && (
+                <span className="field-error">{editValidationErrors.email}</span>
+              )}
             </div>
             <div className="form-group">
               <label>Số điện thoại</label>
@@ -129,7 +171,11 @@ function UserList({ onUserUpdated }) {
                 type="tel"
                 value={editForm.phone}
                 onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                className={editValidationErrors.phone ? 'error-input' : ''}
               />
+              {editValidationErrors.phone && (
+                <span className="field-error">{editValidationErrors.phone}</span>
+              )}
             </div>
             <div className="form-group">
               <label>Địa chỉ</label>

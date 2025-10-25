@@ -62,7 +62,7 @@ exports.isAuthenticatedUser = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "mysecretkey123456789"
+      process.env.JWT_SECRET || "your-super-secret-jwt-key-here-12345"
     );
 
     // Lấy thông tin user từ database

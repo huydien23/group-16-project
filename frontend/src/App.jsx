@@ -129,7 +129,7 @@ function AppContent() {
           </button>
         </nav>
 
-        <main className="app-main">
+        <main className={currentView === 'profile' ? 'app-main app-main-single' : 'app-main'}>
           {currentView === 'users' ? (
             <>
               <div className="main-left">

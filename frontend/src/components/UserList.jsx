@@ -14,6 +14,13 @@ function UserList({ onUserUpdated }) {
     address: ''
   });
   const [editValidationErrors, setEditValidationErrors] = useState({});
+  
+  // Search & Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+  
+  // Delete confirmation modal
+  const [deleteModal, setDeleteModal] = useState({ show: false, user: null });
 
   useEffect(() => {
     fetchUsers();
@@ -22,7 +29,12 @@ function UserList({ onUserUpdated }) {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/users');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:3000/api/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       // Backend trả về { success: true, data: [...] }
       setUsers(response.data.data || response.data);
       setError(null);
@@ -34,14 +46,22 @@ function UserList({ onUserUpdated }) {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-      return;
-    }
+  const handleDeleteClick = (user) => {
+    setDeleteModal({ show: true, user });
+  };
 
+  const handleDeleteConfirm = async () => {
+    const id = deleteModal.user._id || deleteModal.user.id;
+    
     try {
-      await axios.delete(`http://localhost:3000/api/users/${id}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3000/api/users/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setUsers(users.filter(user => user._id !== id));
+      setDeleteModal({ show: false, user: null });
       if (onUserUpdated) {
         onUserUpdated();
       }
@@ -49,6 +69,10 @@ function UserList({ onUserUpdated }) {
       console.error('Error deleting user:', err);
       alert('Không thể xóa người dùng. Vui lòng thử lại.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ show: false, user: null });
   };
 
   const handleEdit = (user) => {
@@ -98,7 +122,12 @@ function UserList({ onUserUpdated }) {
     setEditValidationErrors({});
     
     try {
-      const response = await axios.put(`http://localhost:3000/api/users/${editingUser._id}`, editForm);
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`http://localhost:3000/api/users/${editingUser._id}`, editForm, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       // Cập nhật user trong danh sách
       setUsers(users.map(user => 
@@ -122,8 +151,44 @@ function UserList({ onUserUpdated }) {
     setEditForm({ name: '', email: '', phone: '', address: '' });
   };
 
+  // Filter and search logic
+  const filteredUsers = users.filter(user => {
+    // Role filter
+    if (filterRole !== 'all' && user.role !== filterRole) {
+      return false;
+    }
+    
+    // Search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      return (
+        user.name?.toLowerCase().includes(search) ||
+        user.email?.toLowerCase().includes(search) ||
+        user.phone?.toLowerCase().includes(search) ||
+        user.address?.toLowerCase().includes(search)
+      );
+    }
+    
+    return true;
+  });
+
   if (loading) {
-    return <div className="loading">Đang tải...</div>;
+    return (
+      <div className="user-list-container">
+        <h2>Danh Sách Người Dùng</h2>
+        <div className="loading-skeleton">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="skeleton-row">
+              <div className="skeleton-avatar"></div>
+              <div className="skeleton-content">
+                <div className="skeleton-text skeleton-title"></div>
+                <div className="skeleton-text skeleton-subtitle"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -133,6 +198,42 @@ function UserList({ onUserUpdated }) {
   return (
     <div className="user-list-container">
       <h2>Danh Sách Người Dùng</h2>
+      
+      {/* Search & Filter Bar */}
+      <div className="search-filter-bar">
+        <div className="search-box">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên, email, số điện thoại, địa chỉ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button 
+              className="clear-search"
+              onClick={() => setSearchTerm('')}
+              title="Xóa tìm kiếm"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <div className="filter-box">
+          <label htmlFor="role-filter">Vai trò:</label>
+          <select
+            id="role-filter"
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">Tất cả</option>
+            <option value="admin">Quản trị viên</option>
+            <option value="user">Người dùng</option>
+          </select>
+        </div>
+      </div>
       
       {/* Form Edit User */}
       {editingUser && (
@@ -193,39 +294,107 @@ function UserList({ onUserUpdated }) {
         </div>
       )}
 
-      {users.length === 0 ? (
-        <p className="no-users">Chưa có người dùng nào</p>
+      {filteredUsers.length === 0 ? (
+        <div className="no-users-container">
+          <div className="no-users-icon">{searchTerm || filterRole !== 'all' ? '🔍' : '👥'}</div>
+          <p className="no-users">
+            {searchTerm || filterRole !== 'all' 
+              ? 'Không tìm thấy người dùng phù hợp' 
+              : 'Chưa có người dùng nào'}
+          </p>
+          <p className="no-users-subtitle">
+            {searchTerm || filterRole !== 'all'
+              ? 'Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc'
+              : 'Hãy thêm người dùng đầu tiên bằng form bên trái'}
+          </p>
+        </div>
       ) : (
-        <div className="user-grid">
-          {users.map((user) => (
-            <div key={user._id || user.id} className="user-card">
-              <div className="user-avatar">
-                {user.name?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className="user-info">
-                <h3>{user.name}</h3>
-                <p className="user-email">{user.email}</p>
-                {user.phone && <p className="user-phone">📞 {user.phone}</p>}
-                {user.address && (
-                  <p className="user-address">📍 {user.address}</p>
-                )}
-              </div>
-              <div className="user-actions">
-                <button 
-                  onClick={() => handleEdit(user)}
-                  className="edit-btn"
-                >
-                  Sửa
-                </button>
-                <button 
-                  onClick={() => handleDelete(user._id || user.id)}
-                  className="delete-btn"
-                >
-                  Xóa
-                </button>
-              </div>
+        <div className="user-table-container">
+          <div className="table-header">
+            <h3>
+              {searchTerm || filterRole !== 'all' 
+                ? `Tìm thấy: ${filteredUsers.length} / ${users.length} người dùng`
+                : `Tổng cộng: ${users.length} người dùng`}
+            </h3>
+          </div>
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Họ và tên</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Vai trò</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr key={user._id || user.id} className="user-row">
+                  <td>
+                    <div className="user-avatar">
+                      {user.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                  </td>
+                  <td className="user-name">{user.name}</td>
+                  <td className="user-email">{user.email}</td>
+                  <td className="user-phone">{user.phone || 'Chưa cập nhật'}</td>
+                  <td className="user-address">{user.address || 'Chưa cập nhật'}</td>
+                  <td className="user-role">
+                    <span className={`role-badge ${user.role === 'admin' ? 'admin' : 'user'}`}>
+                      {user.role === 'admin' ? 'ADMIN' : 'USER'}
+                    </span>
+                  </td>
+                  <td className="user-actions">
+                    <button 
+                      onClick={() => handleEdit(user)}
+                      className="edit-btn"
+                      title="Sửa thông tin"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteClick(user)}
+                      className="delete-btn"
+                      title="Xóa người dùng"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div className="modal-overlay" onClick={handleDeleteCancel}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>⚠️ Xác nhận xóa</h3>
+              <button className="modal-close" onClick={handleDeleteCancel}>✕</button>
             </div>
-          ))}
+            <div className="modal-body">
+              <p>Bạn có chắc chắn muốn xóa người dùng này?</p>
+              <div className="user-info-modal">
+                <div className="user-avatar-modal">
+                  {deleteModal.user.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div>
+                  <p className="user-name-modal">{deleteModal.user.name}</p>
+                  <p className="user-email-modal">{deleteModal.user.email}</p>
+                </div>
+              </div>
+              <p className="warning-text">⚠️ Hành động này không thể hoàn tác!</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={handleDeleteCancel}>Hủy</button>
+              <button className="btn-delete" onClick={handleDeleteConfirm}>Xóa</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

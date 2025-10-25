@@ -109,7 +109,12 @@ function AddUser({ onUserAdded }) {
         address: formData.address.trim()
       };
 
-      await axios.post('http://localhost:3000/api/users', newUser);
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:3000/api/users', newUser, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       // Reset form
       setFormData({

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import './Auth.css';
 
-function Login({ onLoginSuccess, onSwitchToRegister }) {
+function Login({ onLoginSuccess, onSwitchToRegister, onForgotPassword }) {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -10,6 +10,7 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   // Validation functions
   const validateEmail = (email) => {
@@ -158,16 +159,27 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
             <label htmlFor="password">
               Mật khẩu <span className="required">*</span>
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Nhập mật khẩu"
-              className={validationErrors.password ? 'error-input' : ''}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Nhập mật khẩu"
+                className={validationErrors.password ? 'error-input' : ''}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+                tabIndex="-1"
+              >
+                {showPassword ? '👁' : '👁'}
+              </button>
+            </div>
             {validationErrors.password && (
               <span className="field-error">{validationErrors.password}</span>
             )}
@@ -183,6 +195,11 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
         </form>
 
         <div className="auth-footer">
+          <p>
+            <a href="#" onClick={(e) => { e.preventDefault(); onForgotPassword && onForgotPassword(); }} className="forgot-password-link">
+              Quên mật khẩu?
+            </a>
+          </p>
           <p>Chưa có tài khoản? <a href="#" onClick={(e) => { e.preventDefault(); onSwitchToRegister(); }}>Đăng ký ngay</a></p>
         </div>
       </div>

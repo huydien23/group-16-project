@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import './Profile.css';
@@ -11,12 +11,18 @@ function Profile() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   
+  // Avatar upload states
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const fileInputRef = useRef(null);
+  
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
     phone: '',
     address: '',
-    role: ''
+    role: '',
+    avatar: ''
   });
 
   const [formData, setFormData] = useState({
@@ -139,8 +145,8 @@ function Profile() {
         // Update user in localStorage
         localStorage.setItem('user', JSON.stringify(response.data.data));
         
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(null), 3000);
+        // Clear success message after 5 seconds
+        setTimeout(() => setSuccess(null), 5000);
       }
     } catch (err) {
       console.error('Update profile error:', err);
@@ -151,6 +157,18 @@ function Profile() {
   };
 
   const handleCancel = () => {
+    // Check if there are unsaved changes
+    const hasChanges = 
+      formData.name !== profileData.name ||
+      formData.email !== profileData.email ||
+      formData.phone !== profileData.phone ||
+      formData.address !== profileData.address;
+    
+    if (hasChanges) {
+      const confirmCancel = window.confirm('Bạn có thay đổi chưa lưu. Bạn có chắc muốn hủy?');
+      if (!confirmCancel) return;
+    }
+    
     setFormData({
       name: profileData.name || '',
       email: profileData.email || '',
@@ -159,6 +177,7 @@ function Profile() {
     });
     setValidationErrors({});
     setError(null);
+    setSuccess(null);
     setIsEditing(false);
   };
 
@@ -169,6 +188,86 @@ function Profile() {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return name[0].toUpperCase();
+  };
+
+  // Handle avatar file selection
+  const handleAvatarSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setError('Chỉ chấp nhận file ảnh (JPG, PNG, GIF, WEBP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Kích thước ảnh không được vượt quá 5MB');
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload avatar
+    handleAvatarUpload(file);
+  };
+
+  // Upload avatar to server
+  const handleAvatarUpload = async (file) => {
+    try {
+      setUploadingAvatar(true);
+      setError(null);
+      setSuccess(null);
+
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await axios.post(
+        'http://localhost:3000/api/auth/upload-avatar',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setProfileData(prev => ({
+          ...prev,
+          avatar: response.data.data.avatar
+        }));
+        setSuccess('Cập nhật avatar thành công!');
+        setAvatarPreview(null);
+        
+        // Update user in localStorage
+        const updatedUser = { ...profileData, avatar: response.data.data.avatar };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        setTimeout(() => setSuccess(null), 5000);
+      }
+    } catch (err) {
+      console.error('Upload avatar error:', err);
+      setError(err.response?.data?.message || 'Upload avatar thất bại');
+      setAvatarPreview(null);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  // Trigger file input click
+  const handleAvatarClick = () => {
+    if (!uploadingAvatar) {
+      fileInputRef.current?.click();
+    }
   };
 
   if (loading) {
@@ -192,14 +291,12 @@ function Profile() {
       <div className="profile-content">
         {error && (
           <div className="alert alert-error">
-            <span className="alert-icon">✕</span>
             <span>{error}</span>
           </div>
         )}
 
         {success && (
           <div className="alert alert-success">
-            <span className="alert-icon">✓</span>
             <span>{success}</span>
           </div>
         )}
@@ -212,14 +309,44 @@ function Profile() {
                 className="btn btn-primary"
                 onClick={() => setIsEditing(true)}
               >
-                <span className="btn-icon">✎</span>
                 Chỉnh sửa
               </button>
             )}
           </div>
 
-          <div className="profile-avatar">
-            {getInitials(profileData.name)}
+          <div className="profile-avatar-section">
+            <div 
+              className="profile-avatar-wrapper" 
+              onClick={handleAvatarClick}
+              title="Click để thay đổi avatar"
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarSelect}
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                style={{ display: 'none' }}
+              />
+              <div className={`profile-avatar ${uploadingAvatar ? 'uploading' : ''}`}>
+                {uploadingAvatar ? (
+                  <div className="avatar-upload-spinner">
+                    <div className="spinner"></div>
+                  </div>
+                ) : avatarPreview || profileData.avatar ? (
+                  <img 
+                    src={avatarPreview || profileData.avatar} 
+                    alt="Avatar" 
+                    className="avatar-image"
+                  />
+                ) : (
+                  getInitials(profileData.name)
+                )}
+              </div>
+              <div className="avatar-overlay">
+                <span className="upload-text">Thay đổi ảnh</span>
+              </div>
+            </div>
+            <p className="avatar-hint">Click để thay đổi ảnh</p>
           </div>
 
           {!isEditing ? (
@@ -261,7 +388,6 @@ function Profile() {
             <form className="profile-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>
-                  <span className="label-icon">👤</span>
                   Họ và tên <span className="required">*</span>
                 </label>
                 <input
@@ -279,7 +405,6 @@ function Profile() {
 
               <div className="form-group">
                 <label>
-                  <span className="label-icon">📧</span>
                   Email <span className="required">*</span>
                 </label>
                 <input
@@ -297,7 +422,6 @@ function Profile() {
 
               <div className="form-group">
                 <label>
-                  <span className="label-icon">📱</span>
                   Số điện thoại
                 </label>
                 <input
@@ -305,18 +429,16 @@ function Profile() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="Nhập số điện thoại"
+                  placeholder="Nhập số điện thoại (10-11 chữ số)"
                   autoComplete="tel"
                 />
                 {validationErrors.phone && (
                   <span className="error-message">{validationErrors.phone}</span>
                 )}
-                <span className="input-hint">Ví dụ: 0912345678</span>
               </div>
 
-              <div className="form-group full-width">
+              <div className="form-group">
                 <label>
-                  <span className="label-icon">🏠</span>
                   Địa chỉ
                 </label>
                 <textarea
@@ -342,7 +464,6 @@ function Profile() {
                   className="btn btn-primary"
                   disabled={saving}
                 >
-                  <span className="btn-icon">{saving ? '⏳' : '💾'}</span>
                   {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>
               </div>

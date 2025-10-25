@@ -5,13 +5,15 @@ import UserList from './components/UserList'
 import AddUser from './components/AddUser'
 import Login from './components/Login'
 import Register from './components/Register'
+import ForgotPassword from './components/ForgotPassword'
+import ResetPassword from './components/ResetPassword'
 import Profile from './components/Profile'
 import { useToast } from './components/Toast'
 
 function AppContent() {
   const { user, isAuthenticated, loading, login, register, logout } = useAuth()
   const [refreshKey, setRefreshKey] = useState(0)
-  const [authMode, setAuthMode] = useState('login') // 'login' or 'register'
+  const [authMode, setAuthMode] = useState('login') // 'login', 'register', 'forgot-password', 'reset-password'
   const [currentView, setCurrentView] = useState('users') // 'users' or 'profile'
   const toast = useToast()
 
@@ -53,6 +55,48 @@ function AppContent() {
 
   // Show auth forms if not authenticated
   if (!isAuthenticated()) {
+    // Forgot Password & Reset Password use auth-wrapper
+    if (authMode === 'forgot-password') {
+      return (
+        <>
+          <toast.ToastContainer />
+          <div className="auth-wrapper">
+            <div className="auth-header">
+              <h1>Hệ Thống Quản Lý Người Dùng</h1>
+              <p>Khôi phục mật khẩu của bạn</p>
+            </div>
+            <ForgotPassword 
+              onBackToLogin={() => setAuthMode('login')}
+              onSuccess={(email) => {
+                toast.success(`Email khôi phục đã được gửi đến ${email}`, 'Thành công')
+              }}
+            />
+          </div>
+        </>
+      )
+    }
+
+    if (authMode === 'reset-password') {
+      return (
+        <>
+          <toast.ToastContainer />
+          <div className="auth-wrapper">
+            <div className="auth-header">
+              <h1>Hệ Thống Quản Lý Người Dùng</h1>
+              <p>Đặt lại mật khẩu mới</p>
+            </div>
+            <ResetPassword 
+              onBackToLogin={() => setAuthMode('login')}
+              onSuccess={() => {
+                toast.success('Mật khẩu đã được đặt lại thành công!', 'Thành công')
+              }}
+            />
+          </div>
+        </>
+      )
+    }
+
+    // Login & Register with tabs
     return (
       <>
         <toast.ToastContainer />
@@ -78,9 +122,16 @@ function AppContent() {
           </div>
 
           {authMode === 'login' ? (
-            <Login onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => setAuthMode('register')} />
+            <Login 
+              onLoginSuccess={handleLoginSuccess} 
+              onSwitchToRegister={() => setAuthMode('register')}
+              onForgotPassword={() => setAuthMode('forgot-password')}
+            />
           ) : (
-            <Register onRegisterSuccess={handleRegisterSuccess} onSwitchToLogin={() => setAuthMode('login')} />
+            <Register 
+              onRegisterSuccess={handleRegisterSuccess} 
+              onSwitchToLogin={() => setAuthMode('login')} 
+            />
           )}
         </div>
       </>
@@ -104,7 +155,7 @@ function AppContent() {
                 className="profile-btn"
                 title="Xem Profile"
               >
-                👤 {user?.name}
+                {user?.name}
               </button>
               <button onClick={handleLogout} className="logout-btn">
                 Đăng xuất
@@ -119,13 +170,13 @@ function AppContent() {
             className={`nav-tab ${currentView === 'users' ? 'active' : ''}`}
             onClick={() => setCurrentView('users')}
           >
-            📋 Quản Lý Users
+            Quản Lý Users
           </button>
           <button 
             className={`nav-tab ${currentView === 'profile' ? 'active' : ''}`}
             onClick={() => setCurrentView('profile')}
           >
-            👤 Thông Tin Cá Nhân
+            Thông Tin Cá Nhân
           </button>
         </nav>
 

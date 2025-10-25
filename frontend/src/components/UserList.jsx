@@ -202,10 +202,9 @@ function UserList({ onUserUpdated }) {
       {/* Search & Filter Bar */}
       <div className="search-filter-bar">
         <div className="search-box">
-          <span className="search-icon">🔍</span>
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên, email, số điện thoại, địa chỉ..."
+            placeholder="Tìm kiếm theo tên, email, SĐT..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -216,7 +215,7 @@ function UserList({ onUserUpdated }) {
               onClick={() => setSearchTerm('')}
               title="Xóa tìm kiếm"
             >
-              ✕
+              ×
             </button>
           )}
         </div>
@@ -296,7 +295,6 @@ function UserList({ onUserUpdated }) {
 
       {filteredUsers.length === 0 ? (
         <div className="no-users-container">
-          <div className="no-users-icon">{searchTerm || filterRole !== 'all' ? '🔍' : '👥'}</div>
           <p className="no-users">
             {searchTerm || filterRole !== 'all' 
               ? 'Không tìm thấy người dùng phù hợp' 
@@ -311,11 +309,11 @@ function UserList({ onUserUpdated }) {
       ) : (
         <div className="user-table-container">
           <div className="table-header">
-            <h3>
+            <p className="user-count">
               {searchTerm || filterRole !== 'all' 
-                ? `Tìm thấy: ${filteredUsers.length} / ${users.length} người dùng`
+                ? `Tìm thấy ${filteredUsers.length} / ${users.length} người dùng`
                 : `Tổng cộng: ${users.length} người dùng`}
-            </h3>
+            </p>
           </div>
           <table className="user-table">
             <thead>
@@ -343,7 +341,7 @@ function UserList({ onUserUpdated }) {
                   <td className="user-address">{user.address || 'Chưa cập nhật'}</td>
                   <td className="user-role">
                     <span className={`role-badge ${user.role === 'admin' ? 'admin' : 'user'}`}>
-                      {user.role === 'admin' ? 'ADMIN' : 'USER'}
+                      {user.role === 'admin' ? 'Quản trị' : 'Người dùng'}
                     </span>
                   </td>
                   <td className="user-actions">
@@ -352,14 +350,14 @@ function UserList({ onUserUpdated }) {
                       className="edit-btn"
                       title="Sửa thông tin"
                     >
-                      ✏️
+                      Sửa
                     </button>
                     <button 
                       onClick={() => handleDeleteClick(user)}
                       className="delete-btn"
                       title="Xóa người dùng"
                     >
-                      🗑️
+                      Xóa
                     </button>
                   </td>
                 </tr>
@@ -374,8 +372,8 @@ function UserList({ onUserUpdated }) {
         <div className="modal-overlay" onClick={handleDeleteCancel}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>⚠️ Xác nhận xóa</h3>
-              <button className="modal-close" onClick={handleDeleteCancel}>✕</button>
+              <h3>Xác nhận xóa</h3>
+              <button className="modal-close" onClick={handleDeleteCancel}>×</button>
             </div>
             <div className="modal-body">
               <p>Bạn có chắc chắn muốn xóa người dùng này?</p>
@@ -388,7 +386,7 @@ function UserList({ onUserUpdated }) {
                   <p className="user-email-modal">{deleteModal.user.email}</p>
                 </div>
               </div>
-              <p className="warning-text">⚠️ Hành động này không thể hoàn tác!</p>
+              <p className="warning-text">Hành động này không thể hoàn tác!</p>
             </div>
             <div className="modal-footer">
               <button className="btn-cancel" onClick={handleDeleteCancel}>Hủy</button>

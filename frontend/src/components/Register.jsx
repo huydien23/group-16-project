@@ -13,6 +13,8 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Validation functions
   const validateName = (name) => {
@@ -174,7 +176,7 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
         
         {success && (
           <div className="success-message">
-            ✓ Đăng ký thành công! Chào mừng bạn!
+            Đăng ký thành công! Chào mừng bạn!
           </div>
         )}
         
@@ -227,16 +229,27 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
             <label htmlFor="password">
               Mật khẩu <span className="required">*</span>
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Nhập mật khẩu"
-              className={validationErrors.password ? 'error-input' : ''}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Nhập mật khẩu"
+                className={validationErrors.password ? 'error-input' : ''}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+                tabIndex="-1"
+              >
+                {showPassword ? '👁' : '👁'}
+              </button>
+            </div>
             {validationErrors.password && (
               <span className="field-error">{validationErrors.password}</span>
             )}
@@ -246,16 +259,27 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
             <label htmlFor="confirmPassword">
               Xác nhận mật khẩu <span className="required">*</span>
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Nhập lại mật khẩu"
-              className={validationErrors.confirmPassword ? 'error-input' : ''}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Nhập lại mật khẩu"
+                className={validationErrors.confirmPassword ? 'error-input' : ''}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password-btn"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={loading}
+                tabIndex="-1"
+              >
+                {showConfirmPassword ? '👁' : '👁'}
+              </button>
+            </div>
             {validationErrors.confirmPassword && (
               <span className="field-error">{validationErrors.confirmPassword}</span>
             )}

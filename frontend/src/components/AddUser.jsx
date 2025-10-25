@@ -148,7 +148,7 @@ function AddUser({ onUserAdded }) {
       
       {success && (
         <div className="success-message">
-          ✓ Thêm người dùng thành công!
+          Thêm người dùng thành công!
         </div>
       )}
       

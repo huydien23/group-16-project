@@ -1,9 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
+
+// Tạo thư mục uploads nếu chưa tồn tại
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Kết nối MongoDB Atlas
 const MONGODB_URI =
@@ -18,6 +26,7 @@ mongoose
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // CORS Configuration
 app.use((req, res, next) => {
@@ -55,6 +64,9 @@ app.get("/", (req, res) => {
         getMe: "GET /api/auth/me",
         updateProfile: "PUT /api/auth/updateprofile",
         updatePassword: "PUT /api/auth/updatepassword",
+        forgotPassword: "POST /api/auth/forgot-password",
+        resetPassword: "PUT /api/auth/reset-password/:token",
+        uploadAvatar: "POST /api/auth/upload-avatar",
       },
       users: {
         getAll: "GET /api/users",

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 // Định nghĩa schema cho User
 const userSchema = new mongoose.Schema(
@@ -45,6 +46,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "https://via.placeholder.com/150",
     },
+    avatarPublicId: {
+      type: String,
+      default: "",
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },
@@ -69,6 +74,23 @@ userSchema.pre("save", async function (next) {
 // Method so sánh password
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Tạo và hash reset password token
+userSchema.methods.getResetPasswordToken = function () {
+  // Tạo token ngẫu nhiên
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  // Hash token và lưu vào database
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Set thời gian hết hạn token (10 phút)
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken; // Trả về token chưa hash để gửi qua email
 };
 
 // Tạo model từ schema

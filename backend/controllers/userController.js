@@ -142,10 +142,18 @@ const updateUser = async (req, res) => {
   }
 };
 
-// DELETE /users/:id - Xóa user theo ID
+// DELETE /users/:id - Xóa user theo ID (Admin hoặc tự xóa)
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Kiểm tra quyền: Admin có thể xóa bất kỳ ai, User chỉ có thể xóa chính mình
+    if (req.user.role !== "admin" && req.user._id.toString() !== id) {
+      return res.status(403).json({
+        success: false,
+        message: "Bạn chỉ có thể xóa tài khoản của chính mình",
+      });
+    }
 
     // Tìm và xóa user
     const user = await User.findByIdAndDelete(id);

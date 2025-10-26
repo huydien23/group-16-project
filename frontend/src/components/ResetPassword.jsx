@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
 import './Auth.css';
 
 const ResetPassword = ({ onBackToLogin }) => {
@@ -50,7 +51,7 @@ const ResetPassword = ({ onBackToLogin }) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/auth/reset-password/${token}`,
+        `${API_URL}/api/auth/reset-password/${token}`,
         { password }
       );
 

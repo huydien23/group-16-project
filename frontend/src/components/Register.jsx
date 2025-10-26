@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import './Auth.css';
 
 function Register({ onRegisterSuccess, onSwitchToLogin }) {
@@ -120,7 +121,7 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('http://localhost:3000/api/auth/signup', {
+      const response = await axios.post(`${API_URL}/api/auth/signup`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password

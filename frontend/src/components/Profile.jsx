@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import API_URL from '../config/api';
 import './Profile.css';
 
 function Profile() {
-  const { user: currentUser, token } = useAuth();
+  const { token } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,16 +36,12 @@ function Profile() {
   const [validationErrors, setValidationErrors] = useState({});
 
   // Fetch profile data
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get('http://localhost:3000/api/auth/me', {
+      const response = await axios.get(`${API_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -66,7 +63,11 @@ function Profile() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -123,7 +124,7 @@ function Profile() {
       setSuccess(null);
 
       const response = await axios.put(
-        'http://localhost:3000/api/auth/updateprofile',
+        `${API_URL}/api/auth/updateprofile`,
         {
           name: formData.name.trim(),
           email: formData.email.trim(),
@@ -230,7 +231,7 @@ function Profile() {
       formData.append('avatar', file);
 
       const response = await axios.post(
-        'http://localhost:3000/api/auth/upload-avatar',
+        `${API_URL}/api/auth/upload-avatar`,
         formData,
         {
           headers: {

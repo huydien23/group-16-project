@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import './Auth.css';
 
 function Login({ onLoginSuccess, onSwitchToRegister, onForgotPassword }) {
@@ -83,7 +84,7 @@ function Login({ onLoginSuccess, onSwitchToRegister, onForgotPassword }) {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
+      const response = await axios.post(API_ENDPOINTS.AUTH.LOGIN, {
         email: formData.email.trim(),
         password: formData.password
       });

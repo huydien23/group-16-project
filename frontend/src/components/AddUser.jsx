@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import './AddUser.css';
 
 function AddUser({ onUserAdded }) {
@@ -110,7 +111,7 @@ function AddUser({ onUserAdded }) {
       };
 
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:3000/api/users', newUser, {
+      await axios.post(API_ENDPOINTS.USERS.CREATE, newUser, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

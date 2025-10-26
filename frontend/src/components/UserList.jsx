@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import './UserList.css';
 
 function UserList({ onUserUpdated }) {
@@ -30,7 +31,7 @@ function UserList({ onUserUpdated }) {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:3000/api/users', {
+      const response = await axios.get(API_ENDPOINTS.USERS.GET_ALL, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -55,7 +56,7 @@ function UserList({ onUserUpdated }) {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3000/api/users/${id}`, {
+      await axios.delete(API_ENDPOINTS.USERS.DELETE(id), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -123,7 +124,7 @@ function UserList({ onUserUpdated }) {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(`http://localhost:3000/api/users/${editingUser._id}`, editForm, {
+      const response = await axios.put(API_ENDPOINTS.USERS.UPDATE(editingUser._id), editForm, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

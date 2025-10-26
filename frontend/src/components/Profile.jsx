@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import './Profile.css';
 
 function Profile() {
@@ -44,7 +45,7 @@ function Profile() {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get('http://localhost:3000/api/auth/me', {
+      const response = await axios.get(API_ENDPOINTS.AUTH.ME, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -123,7 +124,7 @@ function Profile() {
       setSuccess(null);
 
       const response = await axios.put(
-        'http://localhost:3000/api/auth/updateprofile',
+        API_ENDPOINTS.AUTH.UPDATE_PROFILE,
         {
           name: formData.name.trim(),
           email: formData.email.trim(),
@@ -230,7 +231,7 @@ function Profile() {
       formData.append('avatar', file);
 
       const response = await axios.post(
-        'http://localhost:3000/api/auth/upload-avatar',
+        API_ENDPOINTS.AUTH.UPLOAD_AVATAR,
         formData,
         {
           headers: {

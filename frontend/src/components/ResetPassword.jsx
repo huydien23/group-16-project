@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import './Auth.css';
 
 const ResetPassword = ({ onBackToLogin, onSuccess }) => {
@@ -41,7 +42,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/reset-password', {
+      const response = await axios.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
         resetToken,
         password
       });

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import './Auth.css';
 
 const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
@@ -28,7 +29,7 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/forgot-password', {
+      const response = await axios.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
         email
       });
 

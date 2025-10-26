@@ -1,9 +1,12 @@
-import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Auth.css';
 
-const ResetPassword = ({ onBackToLogin, onSuccess }) => {
-  const [resetToken, setResetToken] = useState('');
+const ResetPassword = ({ onBackToLogin }) => {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -12,14 +15,19 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  useEffect(() => {
+    if (!token) {
+      setError('Link không hợp lệ. Vui lòng yêu cầu link reset mới.');
+    }
+  }, [token]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
 
-    // Validation
-    if (!resetToken) {
-      setError('Vui lòng nhập mã xác thực (reset token)');
+    if (!token) {
+      setError('Link không hợp lệ');
       return;
     }
 
@@ -41,33 +49,47 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/reset-password', {
-        resetToken,
-        password
-      });
+      const response = await axios.put(
+        `http://localhost:3000/api/auth/reset-password/${token}`,
+        { password }
+      );
 
-      setSuccessMessage(response.data.message || 'Đổi mật khẩu thành công!');
-      setResetToken('');
-      setPassword('');
-      setConfirmPassword('');
-      
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        if (onSuccess) {
-          onSuccess();
+      if (response.data.success) {
+        setSuccessMessage('Đổi mật khẩu thành công!');
+        
+        if (response.data.data.token) {
+          localStorage.setItem('token', response.data.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.data.user));
         }
-        if (onBackToLogin) {
-          onBackToLogin();
-        }
-      }, 2000);
+        
+        setTimeout(() => {
+          if (response.data.data.token) {
+            navigate('/profile');
+          } else {
+            if (onBackToLogin) {
+              onBackToLogin();
+            } else {
+              navigate('/login');
+            }
+          }
+        }, 2000);
+      }
     } catch (err) {
       console.error('Reset password error:', err);
       setError(
         err.response?.data?.message || 
-        'Có lỗi xảy ra khi đặt lại mật khẩu. Vui lòng kiểm tra mã xác thực.'
+        'Có lỗi xảy ra khi đặt lại mật khẩu. Link có thể đã hết hạn (10 phút).'
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    if (onBackToLogin) {
+      onBackToLogin();
+    } else {
+      navigate('/login');
     }
   };
 
@@ -75,7 +97,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
     <div className="auth-container">
       <div className="auth-form">
         <h2>Đặt Lại Mật Khẩu</h2>
-        <p className="auth-subtitle">Nhập mã xác thực từ email và mật khẩu mới</p>
+        <p className="auth-subtitle">Nhập mật khẩu mới của bạn</p>
 
         <form onSubmit={handleSubmit}>
           {error && (
@@ -86,26 +108,9 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
 
           {successMessage && (
             <div className="success-message">
-              <div>
-                <div>{successMessage}</div>
-                <div className="redirect-text">Đang chuyển về trang đăng nhập...</div>
-              </div>
+              {successMessage}
             </div>
           )}
-
-          <div className="form-group">
-            <label htmlFor="resetToken">Mã Xác Thực (Reset Token) *</label>
-            <input
-              type="text"
-              id="resetToken"
-              value={resetToken}
-              onChange={(e) => setResetToken(e.target.value)}
-              placeholder="Nhập mã từ email"
-              disabled={loading}
-              autoComplete="off"
-            />
-            <p className="auth-hint">Kiểm tra email để lấy mã xác thực</p>
-          </div>
 
           <div className="form-group">
             <label htmlFor="password">Mật Khẩu Mới *</label>
@@ -116,7 +121,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Ít nhất 6 ký tự"
-                disabled={loading}
+                disabled={loading || !token}
                 autoComplete="new-password"
               />
               <button
@@ -126,7 +131,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
                 disabled={loading}
                 tabIndex="-1"
               >
-                {showPassword ? '👁' : '👁‍🗨'}
+                {showPassword ? '' : ''}
               </button>
             </div>
           </div>
@@ -140,7 +145,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Nhập lại mật khẩu mới"
-                disabled={loading}
+                disabled={loading || !token}
                 autoComplete="new-password"
               />
               <button
@@ -150,7 +155,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
                 disabled={loading}
                 tabIndex="-1"
               >
-                {showConfirmPassword ? '👁' : '👁‍🗨'}
+                {showConfirmPassword ? '' : ''}
               </button>
             </div>
           </div>
@@ -158,7 +163,7 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
           <button 
             type="submit" 
             className="auth-submit-btn"
-            disabled={loading}
+            disabled={loading || !token}
           >
             {loading ? 'Đang xử lý...' : 'Đặt Lại Mật Khẩu'}
           </button>
@@ -166,11 +171,11 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
 
         <div className="auth-footer">
           <p>
-            <a href="#" onClick={(e) => { e.preventDefault(); onBackToLogin(); }}>
-              ← Quay lại Đăng nhập
+            <a href="#" onClick={(e) => { e.preventDefault(); handleBackToLogin(); }}>
+              Quay lại Đăng nhập
             </a>
           </p>
-          <p className="auth-hint">Mật khẩu mới sẽ được mã hóa và lưu trữ an toàn.</p>
+          <p className="auth-hint">Link reset chỉ có hiệu lực trong 10 phút.</p>
         </div>
       </div>
     </div>
@@ -178,4 +183,3 @@ const ResetPassword = ({ onBackToLogin, onSuccess }) => {
 };
 
 export default ResetPassword;
-

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import UserList from './components/UserList'
@@ -10,10 +11,26 @@ import ResetPassword from './components/ResetPassword'
 import Profile from './components/Profile'
 import { useToast } from './components/Toast'
 
+function ResetPasswordPage() {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="auth-wrapper">
+      <div className="auth-header">
+        <h1>Hệ Thống Quản Lý Người Dùng</h1>
+        <p>Đặt lại mật khẩu mới</p>
+      </div>
+      <ResetPassword 
+        onBackToLogin={() => navigate('/')}
+      />
+    </div>
+  );
+}
+
 function AppContent() {
-  const { user, isAuthenticated, loading, login, register, logout } = useAuth()
+  const { user, isAuthenticated, loading, login, logout } = useAuth()
   const [refreshKey, setRefreshKey] = useState(0)
-  const [authMode, setAuthMode] = useState('login') // 'login', 'register', 'forgot-password', 'reset-password'
+  const [authMode, setAuthMode] = useState('login') // 'login', 'register', 'forgot-password'
   const [currentView, setCurrentView] = useState('users') // 'users' or 'profile'
   const toast = useToast()
 
@@ -27,7 +44,7 @@ function AppContent() {
     toast.success(`Chào mừng ${userData.name} quay trở lại!`, 'Đăng nhập thành công')
   }
 
-  const handleRegisterSuccess = (userData, token) => {
+  const handleRegisterSuccess = (userData) => {
     // Không login ngay, chỉ hiển thị thông báo và chuyển sang form đăng nhập
     console.log('Register success, showing toast for:', userData.name);
     toast.success(`Tài khoản ${userData.name} đã được tạo thành công! Vui lòng đăng nhập.`, 'Đăng ký thành công')
@@ -206,7 +223,10 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Routes>
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/*" element={<AppContent />} />
+      </Routes>
     </AuthProvider>
   )
 }

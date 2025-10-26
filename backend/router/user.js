@@ -6,17 +6,18 @@ const {
   updateUser,
   deleteUser,
 } = require("../controllers/userController");
+const { protect, authorizeRoles } = require("../middleware/auth");
 
-// Route GET /users - Lấy danh sách tất cả users
-router.get("/", getAllUsers);
+// Route GET /users - Lấy danh sách tất cả users (AUTHENTICATED USERS)
+router.get("/", protect, getAllUsers);
 
-// Route POST /users - Tạo user mới
-router.post("/", createUser);
+// Route POST /users - Tạo user mới (ADMIN ONLY)
+router.post("/", protect, authorizeRoles("admin"), createUser);
 
-// Route PUT /users/:id - Cập nhật user theo ID
-router.put("/:id", updateUser);
+// Route PUT /users/:id - Cập nhật user theo ID (ADMIN ONLY)
+router.put("/:id", protect, authorizeRoles("admin"), updateUser);
 
-// Route DELETE /users/:id - Xóa user theo ID
-router.delete("/:id", deleteUser);
+// Route DELETE /users/:id - Xóa user theo ID (ADMIN or Self)
+router.delete("/:id", protect, deleteUser);
 
 module.exports = router;

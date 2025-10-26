@@ -3,56 +3,192 @@
   margin: 0 auto;
   padding: 0;
   width: 100%;
+  min-height: 100vh;
+  height: 100%;
 }
 
 .app-container {
   min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .app-header {
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   padding: clamp(1rem, 2vw, 1.5rem);
-  text-align: center;
   border-bottom: 2px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.app-header h1 {
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.header-info h1 {
   margin: 0;
   font-size: clamp(1.5rem, 2.2vw, 2rem);
-  color: #1d4ed8;
-  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-.app-header p {
+.header-info p {
   margin: 0.5rem 0 0 0;
   color: #6b7280;
   font-size: clamp(0.9rem, 1.1vw, 1rem);
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+.welcome-text {
+  color: #374151;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.welcome-text strong {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.profile-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Navigation Tabs */
+.app-nav {
+  background: white;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  gap: 0;
+  padding: 0 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-tab:hover {
+  color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.nav-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
 .app-main {
   flex: 1;
-  padding: clamp(1rem, 2vw, 2rem);
-  max-width: 1300px;
+  padding: 1rem;
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(300px, 350px) 1fr;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.app-main-single {
+  display: block !important;
+  grid-template-columns: unset !important;
+  max-width: 100% !important;
+  align-items: start;
+  min-height: calc(100vh - 200px);
+}
+
+@media (min-width: 1400px) {
+  .app-main {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .app-main {
+    max-width: 1800px;
+    padding: 2rem;
+    gap: 2rem;
+  }
 }
 
 .main-left {
-  flex: 0 0 420px;
   position: sticky;
   top: 1rem;
-  padding-right: 50px; 
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 .main-right {
-  flex: 1;
   min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-footer {
@@ -69,33 +205,192 @@
   font-size: 0.9rem;
 }
 
-@media (max-width: 1024px) {
+/* Auth Wrapper Styles */
+.auth-wrapper {
+  height: 100vh;
+  max-height: 100vh;
+  width: 100vw;
+  background: #f0f9ff; /* Sky blue 50 - nhẹ nhàng, phù hợp với blue theme */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem 2rem 2rem 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar for auth wrapper */
+.auth-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.auth-wrapper::-webkit-scrollbar-track {
+  background: #e0f2fe;
+}
+
+.auth-wrapper::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+.auth-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Smooth form transitions */
+.auth-form {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Loại bỏ animation background để đồng bộ với dự án */
+
+.auth-header {
+  text-align: center;
+  margin: 0.5rem 0 1.5rem 0;
+  color: #111827; /* Dark text như dự án */
+  z-index: 10;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.auth-header h1 {
+  font-size: clamp(1.5rem, 2.2vw, 2rem); /* Font size như dự án */
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #1d4ed8; /* Solid dark blue như dự án */
+}
+
+.auth-header p {
+  font-size: clamp(0.9rem, 1.1vw, 1rem); /* Font size như dự án */
+  margin: 0;
+  color: #6b7280; /* Grey text như dự án */
+}
+
+.auth-tabs {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.375rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  position: relative;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.auth-tab {
+  background: none;
+  border: none;
+  color: #6b7280;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  text-align: center;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-tab.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+  font-weight: 700;
+}
+
+.auth-tab:hover:not(.active) {
+  background: #f8fafc;
+  color: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+/* Loading Styles */
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 1200px) {
   .app-main {
-    flex-direction: column;
+    grid-template-columns: minmax(320px, 350px) 1fr;
     gap: 1.5rem;
-  }
-  
-  .main-left {
-    flex: 1;
-    width: 100%;
-    position: static;
-  }
-  
-  .main-right {
-    width: 100%;
   }
 }
 
-@media (max-width: 768px) {
-  .app-header h1 {
-    font-size: 1.5rem;
-  }
-  
-  .app-header p {
-    font-size: 0.9rem;
-  }
-  
+@media (max-width: 1024px) {
   .app-main {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
     padding: 1rem;
   }
+  
+  .main-left {
+    position: static;
+    order: 2;
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .main-right {
+    order: 1;
+  }
+}
+
+/* Desktop Only - No Mobile Responsive Styles */
+
+/* Focus states for accessibility */
+.auth-tab:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.auth-tab:focus:not(.active) {
+  background: #f8fafc;
+  color: #374151;
+}
+
+.auth-tab:focus.active {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 0 0 3px rgba(37, 99, 235, 0.2);
 }

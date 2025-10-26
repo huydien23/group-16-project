@@ -109,7 +109,12 @@ function AddUser({ onUserAdded }) {
         address: formData.address.trim()
       };
 
-      await axios.post('http://localhost:3000/users', newUser);
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:3000/api/users', newUser, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       // Reset form
       setFormData({
@@ -143,7 +148,7 @@ function AddUser({ onUserAdded }) {
       
       {success && (
         <div className="success-message">
-          ✓ Thêm người dùng thành công!
+          Thêm người dùng thành công!
         </div>
       )}
       

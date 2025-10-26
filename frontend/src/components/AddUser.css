@@ -1,11 +1,15 @@
 .add-user-container {
   margin: 0;
-  padding: clamp(1.2rem, 2vw, 1.8rem);
+  padding: 1rem;
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   width: 100%;
+  position: sticky;
+  top: 1rem;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .add-user-container h2 {

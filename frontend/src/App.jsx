@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
@@ -31,8 +31,17 @@ function AppContent() {
   const { user, isAuthenticated, loading, login, logout } = useAuth()
   const [refreshKey, setRefreshKey] = useState(0)
   const [authMode, setAuthMode] = useState('login') // 'login', 'register', 'forgot-password'
-  const [currentView, setCurrentView] = useState('users') // 'users' or 'profile'
+  // Set default view based on user role: admin -> 'users', user -> 'profile'
+  const [currentView, setCurrentView] = useState('dashboard')
   const toast = useToast()
+
+  // Update current view based on user role when user changes
+  useEffect(() => {
+    if (user) {
+      // Default to dashboard for all users
+      setCurrentView('dashboard')
+    }
+  }, [user])
 
   const handleUserAdded = () => {
     // Force refresh UserList by changing key
@@ -161,44 +170,138 @@ function AppContent() {
       <toast.ToastContainer />
       <div className="app-container">
         <header className="app-header">
-          <div className="header-content">
-            <div className="header-info">
-              <h1>Quản Lý Người Dùng</h1>
-              <p>Hệ thống quản lý danh sách người dùng</p>
+          <div className="header-wrapper">
+            <div className="header-content">
+              <div className="header-left">
+                <div className="header-info">
+                  <h1>Quản Lý Người Dùng</h1>
+                  <p>Hệ thống quản lý danh sách người dùng</p>
+                </div>
+
+                {/* Navigation Tabs - Nằm cạnh logo */}
+                <nav className="app-nav-header">
+                  <button 
+                    className={`nav-tab ${currentView === 'dashboard' ? 'active' : ''}`}
+                    onClick={() => setCurrentView('dashboard')}
+                  >
+                    Dashboard
+                  </button>
+                  {/* Chỉ admin mới thấy tab Quản Lý Users */}
+                  {user?.role === 'admin' && (
+                    <button 
+                      className={`nav-tab ${currentView === 'users' ? 'active' : ''}`}
+                      onClick={() => setCurrentView('users')}
+                    >
+                      Quản Lý Users
+                    </button>
+                  )}
+                  <button 
+                    className={`nav-tab ${currentView === 'profile' ? 'active' : ''}`}
+                    onClick={() => setCurrentView('profile')}
+                  >
+                    Thông Tin Cá Nhân
+                  </button>
+                </nav>
+              </div>
             </div>
+
             <div className="user-info">
-              <button 
-                onClick={() => setCurrentView('profile')} 
-                className="profile-btn"
-                title="Xem Profile"
-              >
-                {user?.name}
-              </button>
-              <button onClick={handleLogout} className="logout-btn">
-                Đăng xuất
-              </button>
+              {/* Tên User */}
+              <div className="user-name-wrapper">
+                <span className="user-greeting">
+                  Xin chào, {user?.name?.split(' ').slice(1).join(' ')}
+                </span>
+              </div>
+
+              {/* Badge Admin/User */}
+              <div className="user-badge-wrapper">
+                <span className={`role-tag ${user?.role === 'admin' ? 'admin' : 'user'}`}>
+                  {user?.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}
+                </span>
+              </div>
+
+              {/* Nút Đăng Xuất */}
+              <div className="logout-wrapper">
+                <button onClick={handleLogout} className="logout-btn">
+                  Đăng xuất
+                </button>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Navigation Tabs */}
-        <nav className="app-nav">
-          <button 
-            className={`nav-tab ${currentView === 'users' ? 'active' : ''}`}
-            onClick={() => setCurrentView('users')}
-          >
-            Quản Lý Users
-          </button>
-          <button 
-            className={`nav-tab ${currentView === 'profile' ? 'active' : ''}`}
-            onClick={() => setCurrentView('profile')}
-          >
-            Thông Tin Cá Nhân
-          </button>
-        </nav>
+        <main className={currentView === 'profile' || currentView === 'dashboard' ? 'app-main app-main-single' : 'app-main'}>
+          {currentView === 'dashboard' ? (
+            <div className="dashboard-container">
+              <div className="dashboard-welcome">
+                <div className="welcome-header">
+                  <div className="welcome-icon">👋</div>
+                  <div className="welcome-content">
+                    <h2>Xin chào, {user?.name?.split(' ').slice(1).join(' ')}!</h2>
+                    <p>Chào mừng bạn trở lại với hệ thống quản lý</p>
+                  </div>
+                </div>
+              </div>
 
-        <main className={currentView === 'profile' ? 'app-main app-main-single' : 'app-main'}>
-          {currentView === 'users' ? (
+              <div className="dashboard-grid">
+                <div 
+                  className="info-card profile-card clickable-card"
+                  onClick={() => setCurrentView('profile')}
+                  title="Click để xem chi tiết"
+                >
+                  <div className="card-icon">👤</div>
+                  <h3>Thông Tin Cá Nhân</h3>
+                  <div className="card-details">
+                    <div className="detail-row">
+                      <span className="detail-label">Họ tên:</span>
+                      <span className="detail-value">{user?.name}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Email:</span>
+                      <span className="detail-value">{user?.email}</span>
+                    </div>
+                    <div className="detail-row detail-row-highlight">
+                      <span className="detail-label">Vai trò:</span>
+                      <span className={`role-badge ${user?.role}`}>
+                        {user?.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {user?.role === 'admin' && (
+                  <div className="info-card admin-card">
+                    <div className="card-icon">⚙️</div>
+                    <h3>Quản Lý Hệ Thống</h3>
+                    <div className="card-details">
+                      <p className="admin-text">Bạn có toàn quyền quản lý người dùng trong hệ thống</p>
+                      <button 
+                        className="quick-action-btn"
+                        onClick={() => setCurrentView('users')}
+                      >
+                        📋 Xem Danh Sách Users
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="info-card activity-card">
+                  <div className="card-icon">📊</div>
+                  <h3>Hoạt Động</h3>
+                  <div className="card-details">
+                    <div className="activity-item">
+                      <span className="activity-dot"></span>
+                      <span>Đăng nhập lần cuối: Hôm nay</span>
+                    </div>
+                    <div className="activity-item">
+                      <span className="activity-dot"></span>
+                      <span>Trạng thái: Đang hoạt động</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : currentView === 'users' && user?.role === 'admin' ? (
             <>
               <div className="main-left">
                 <AddUser onUserAdded={handleUserAdded} />

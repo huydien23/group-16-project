@@ -102,6 +102,10 @@ const signup = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role || "user",
+          phone: user.phone || "",
+          address: user.address || "",
+          avatar: user.avatar || "",
         },
         token,
       },
@@ -168,6 +172,10 @@ const login = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role || "user",
+          phone: user.phone || "",
+          address: user.address || "",
+          avatar: user.avatar || "",
         },
         token,
       },
@@ -220,6 +228,7 @@ const getMe = async (req, res) => {
         phone: user.phone || "",
         address: user.address || "",
         role: user.role || "user",
+        avatar: user.avatar || "",
       },
     });
   } catch (error) {
@@ -260,6 +269,7 @@ const updateProfile = async (req, res) => {
         phone: user.phone || "",
         address: user.address || "",
         role: user.role || "user",
+        avatar: user.avatar || "",
       },
     });
   } catch (error) {

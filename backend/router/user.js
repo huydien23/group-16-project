@@ -8,8 +8,8 @@ const {
 } = require("../controllers/userController");
 const { protect, authorizeRoles } = require("../middleware/auth");
 
-// Route GET /users - Lấy danh sách tất cả users (AUTHENTICATED USERS)
-router.get("/", protect, getAllUsers);
+// Route GET /users - Lấy danh sách tất cả users (ADMIN ONLY)
+router.get("/", protect, authorizeRoles("admin"), getAllUsers);
 
 // Route POST /users - Tạo user mới (ADMIN ONLY)
 router.post("/", protect, authorizeRoles("admin"), createUser);
@@ -17,7 +17,7 @@ router.post("/", protect, authorizeRoles("admin"), createUser);
 // Route PUT /users/:id - Cập nhật user theo ID (ADMIN ONLY)
 router.put("/:id", protect, authorizeRoles("admin"), updateUser);
 
-// Route DELETE /users/:id - Xóa user theo ID (ADMIN or Self)
-router.delete("/:id", protect, deleteUser);
+// Route DELETE /users/:id - Xóa user theo ID (ADMIN ONLY)
+router.delete("/:id", protect, authorizeRoles("admin"), deleteUser);
 
 module.exports = router;

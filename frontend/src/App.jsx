@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
@@ -31,8 +31,17 @@ function AppContent() {
   const { user, isAuthenticated, loading, login, logout } = useAuth()
   const [refreshKey, setRefreshKey] = useState(0)
   const [authMode, setAuthMode] = useState('login') // 'login', 'register', 'forgot-password'
-  const [currentView, setCurrentView] = useState('users') // 'users' or 'profile'
+  // Set default view based on user role: admin -> 'users', user -> 'profile'
+  const [currentView, setCurrentView] = useState(user?.role === 'admin' ? 'users' : 'profile')
   const toast = useToast()
+
+  // Update current view based on user role when user changes
+  useEffect(() => {
+    if (user) {
+      // Admin default to 'users', regular user default to 'profile'
+      setCurrentView(user.role === 'admin' ? 'users' : 'profile')
+    }
+  }, [user])
 
   const handleUserAdded = () => {
     // Force refresh UserList by changing key
@@ -167,6 +176,11 @@ function AppContent() {
               <p>Hệ thống quản lý danh sách người dùng</p>
             </div>
             <div className="user-info">
+              <div className="user-badge">
+                <span className={`role-tag ${user?.role === 'admin' ? 'admin' : 'user'}`}>
+                  {user?.role === 'admin' ? 'Admin' : 'User'}
+                </span>
+              </div>
               <button 
                 onClick={() => setCurrentView('profile')} 
                 className="profile-btn"
@@ -183,12 +197,15 @@ function AppContent() {
 
         {/* Navigation Tabs */}
         <nav className="app-nav">
-          <button 
-            className={`nav-tab ${currentView === 'users' ? 'active' : ''}`}
-            onClick={() => setCurrentView('users')}
-          >
-            Quản Lý Users
-          </button>
+          {/* Chỉ admin mới thấy tab Quản Lý Users */}
+          {user?.role === 'admin' && (
+            <button 
+              className={`nav-tab ${currentView === 'users' ? 'active' : ''}`}
+              onClick={() => setCurrentView('users')}
+            >
+              Quản Lý Users
+            </button>
+          )}
           <button 
             className={`nav-tab ${currentView === 'profile' ? 'active' : ''}`}
             onClick={() => setCurrentView('profile')}
@@ -198,7 +215,7 @@ function AppContent() {
         </nav>
 
         <main className={currentView === 'profile' ? 'app-main app-main-single' : 'app-main'}>
-          {currentView === 'users' ? (
+          {currentView === 'users' && user?.role === 'admin' ? (
             <>
               <div className="main-left">
                 <AddUser onUserAdded={handleUserAdded} />

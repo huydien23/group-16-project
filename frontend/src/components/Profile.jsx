@@ -377,9 +377,9 @@ function Profile() {
                 </span>
               </div>
 
-              <div className="profile-info-item">
+              <div className="profile-info-item profile-info-item-highlight">
                 <span className="profile-info-label">Vai trò:</span>
-                <span className="profile-info-value">
+                <span className={`profile-role-badge ${profileData.role}`}>
                   {profileData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}
                 </span>
               </div>

@@ -55,7 +55,7 @@ const generateToken = (id) => {
 // Register user
 const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -84,11 +84,18 @@ const signup = async (req, res) => {
 
     // Create user (password will be hashed by pre-save hook in model)
     console.log("Creating user with password length:", password.length);
-    const user = await User.create({
+    const userData = {
       name,
       email,
       password, // Don't hash here, model will handle it
-    });
+    };
+
+    // Add role if provided and valid
+    if (role && ["user", "admin"].includes(role)) {
+      userData.role = role;
+    }
+
+    const user = await User.create(userData);
     console.log("User created successfully:", user._id);
 
     // Generate token

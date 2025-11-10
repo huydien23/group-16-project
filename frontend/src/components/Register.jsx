@@ -8,7 +8,8 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'user'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -124,7 +125,8 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
       const response = await axios.post(`${API_URL}/api/auth/signup`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        password: formData.password
+        password: formData.password,
+        role: formData.role
       });
 
       // Không lưu token vào localStorage (chỉ thông báo thành công)
@@ -145,7 +147,8 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
         name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: 'user'
       });
       
       // Call callback to notify parent component (không login ngay)
@@ -284,6 +287,23 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
             {validationErrors.confirmPassword && (
               <span className="field-error">{validationErrors.confirmPassword}</span>
             )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role">
+              Vai trò <span className="required">*</span>
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="form-select"
+              required
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
 
           <button 
